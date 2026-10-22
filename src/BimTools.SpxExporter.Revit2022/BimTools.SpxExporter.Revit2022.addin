@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Revit add-in manifest for Autodesk Revit 2022.
+  Installation target:
+    %PROGRAMDATA%\Autodesk\Revit\Addins\2022\BimTools.SpxExporter.Revit2022.addin
+  The matching DLL must sit at:
+    %PROGRAMDATA%\Autodesk\Revit\Addins\2022\BimTools.SpxExporter\BimTools.SpxExporter.Revit2022.dll
+  (or, for per-user install: %APPDATA%\Autodesk\Revit\Addins\2022\...)
+-->
+<RevitAddIns>
+  <AddIn Type="Application">
+    <Name>BIM TOOLS SPX Exporter (Revit 2022)</Name>
+    <Assembly>BimTools.SpxExporter\BimTools.SpxExporter.Revit2022.dll</Assembly>
+    <AddInId>8f3a1c52-8d47-4b0e-9a65-2c7e1d4f8b32</AddInId>
+    <FullClassName>BimTools.SpxExporter.Startup.SpxExporterApplication</FullClassName>
+    <VendorId>BIMT</VendorId>
+    <VendorDescription>BIM TOOLS</VendorDescription>
+  </AddIn>
+</RevitAddIns>

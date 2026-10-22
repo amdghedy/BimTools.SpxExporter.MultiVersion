@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Auto-generated per-year project file. Do NOT edit by hand - regenerate via
+  /scripts/generate_per_version_files.py.
+
+  Target: Autodesk Revit 2024
+  .NET target framework: net48
+  Nice3point.Revit.Api version: 2024.*
+  Add-in ID (stable per year): 6f3a1c52-8d47-4b0e-9a65-2c7e1d4f8b31
+-->
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net48</TargetFramework>
+    <RootNamespace>BimTools.SpxExporter</RootNamespace>
+    <AssemblyName>BimTools.SpxExporter.Revit2024</AssemblyName>
+    <LangVersion>10.0</LangVersion>
+    <Nullable>disable</Nullable>
+    <Platforms>x64</Platforms>
+    <PlatformTarget>x64</PlatformTarget>
+    <IsPackable>false</IsPackable>
+    <GenerateAssemblyInfo>true</GenerateAssemblyInfo>
+    <AssemblyVersion>1.3.3.0</AssemblyVersion>
+    <FileVersion>1.3.3.0</FileVersion>
+    <Company>BIM TOOLS</Company>
+    <Product>BIM TOOLS SPX Exporter for Revit 2024</Product>
+    <Description>BIM TOOLS SPX Exporter - batch export Revit models to SYNCHRO 4D (.spx). Built for Autodesk Revit 2024.</Description>
+    <Copyright>Copyright (c) BIM TOOLS</Copyright>
+
+    <!-- Per-year identity injected into AppPaths.cs -->
+    <RevitYear>2024</RevitYear>
+    <RevitPlatform>net48</RevitPlatform>
+    <DefineConstants>$(DefineConstants);REVIT_YEAR_2024</DefineConstants>
+
+    <OutputPath>bin\$(Configuration)\</OutputPath>
+    <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
+    <UseWPF>true</UseWPF>
+    <UseWindowsForms>true</UseWindowsForms>
+    <EnableWindowsTargeting>true</EnableWindowsTargeting>
+    <DebugType>embedded</DebugType>
+
+    <!-- Optional auto-deploy: tweak RevitInstallDir at the command line if Revit is not in the default location. -->
+    <RevitInstallDir Condition="'$(RevitInstallDir)' == ''">C:\Program Files\Autodesk\Revit 2024\</RevitInstallDir>
+    <RevitAddinsDir Condition="'$(RevitAddinsDir)' == ''">$(ProgramData)\Autodesk\Revit\Addins\2024\</RevitAddinsDir>
+  </PropertyGroup>
+
+  <!-- Shared sources - declared exactly once, in BimTools.SpxExporter.Shared.props -->
+  <Import Project="..\BimTools.SpxExporter\BimTools.SpxExporter.Shared.props" />
+
+  <!--
+    Revit API references. Two strategies (mirrors the original 2024 project):
+
+      1. If Revit 2024 is installed locally at $(RevitInstallDir), reference the DLLs from there.
+      2. Otherwise, restore Nice3point.Revit.Api NuGet packages (versioned per year) and use those.
+
+    Nice3point.Revit.Api is a community-maintained NuGet feed that ships the same RevitAPI.dll
+    and RevitAPIUI.dll found inside each year's Revit install, repackaged for use in CI without
+    requiring a Revit license or install.
+  -->
+  <ItemGroup Condition="Exists('$(RevitInstallDir)RevitAPI.dll')">
+    <Reference Include="RevitAPI">
+      <HintPath>$(RevitInstallDir)RevitAPI.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="RevitAPIUI">
+      <HintPath>$(RevitInstallDir)RevitAPIUI.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+  </ItemGroup>
+
+  <ItemGroup Condition="!Exists('$(RevitInstallDir)RevitAPI.dll')">
+    <PackageReference Include="Nice3point.Revit.Api.RevitAPI" Version="2024.*" ExcludeAssets="runtime" />
+    <PackageReference Include="Nice3point.Revit.Api.RevitAPIUI" Version="2024.*" ExcludeAssets="runtime" />
+  </ItemGroup>
+
+  <!--
+    Auto-deploy target: after every successful Windows build, copy the DLL and manifest
+    into the Revit 2024 add-ins folder so the next Revit start loads it. Skipped on
+    non-Windows OSes (i.e. in Linux CI runners).
+  -->
+  <Target Name="DeployToRevit" AfterTargets="Build" Condition="'$(OS)' == 'Windows_NT'">
+    <ItemGroup>
+      <DeployBinaries Include="$(OutDir)BimTools.SpxExporter.Revit2024.dll" />
+      <DeployBinaries Include="$(OutDir)BimTools.SpxExporter.Revit2024.pdb" Condition="Exists('$(OutDir)BimTools.SpxExporter.Revit2024.pdb')" />
+    </ItemGroup>
+    <MakeDir Directories="$(RevitAddinsDir)BimTools.SpxExporter" ContinueOnError="true" />
+    <Copy SourceFiles="@(DeployBinaries)" DestinationFolder="$(RevitAddinsDir)BimTools.SpxExporter" ContinueOnError="true" />
+    <Copy SourceFiles="$(MSBuildProjectDirectory)\BimTools.SpxExporter.Revit2024.addin" DestinationFolder="$(RevitAddinsDir)" ContinueOnError="true" />
+  </Target>
+
+</Project>

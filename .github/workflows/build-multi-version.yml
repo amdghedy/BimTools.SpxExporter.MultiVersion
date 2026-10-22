@@ -1,0 +1,131 @@
+name: Build multi-version (2022, 2023, 2024, 2025, 2026, 2027)
+
+on:
+  push:
+    branches: [ main, master ]
+    tags: [ 'v*' ]
+  pull_request:
+    branches: [ main, master ]
+  workflow_dispatch:
+
+# Cancel superseded runs on the same ref so we don't waste Windows minutes.
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build:
+    name: Build Revit ${{ matrix.revit_year }} (${{ matrix.framework }})
+    runs-on: windows-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - revit_year: 2022
+            framework:  net48
+            nice3point: 2022.*
+          - revit_year: 2023
+            framework:  net48
+            nice3point: 2023.*
+          - revit_year: 2024
+            framework:  net48
+            nice3point: 2024.*
+          - revit_year: 2025
+            framework:  net8.0-windows
+            nice3point: 2025.*
+          - revit_year: 2026
+            framework:  net8.0-windows
+            nice3point: 2026.*
+          - revit_year: 2027
+            framework:  net8.0-windows
+            nice3point: 2027.*
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: |
+            6.0.x
+            8.0.x
+
+      - name: Add MSBuild to PATH (for net48)
+        uses: microsoft/setup-msbuild@v2
+
+      - name: Restore (dotnet)
+        run: dotnet restore src/BimTools.SpxExporter.Revit${{ matrix.revit_year }}/BimTools.SpxExporter.Revit${{ matrix.revit_year }}.csproj
+
+      - name: Build (dotnet)
+        run: dotnet build src/BimTools.SpxExporter.Revit${{ matrix.revit_year }}/BimTools.SpxExporter.Revit${{ matrix.revit_year }}.csproj --configuration Release --no-restore -p:RevitInstallDir="C:\\non-existent\\"  # force NuGet path
+
+      - name: Stage release folder
+        shell: pwsh
+        run: |
+          $stage = "stage/BimTools.SpxExporter.Revit${{ matrix.revit_year }}"
+          New-Item -ItemType Directory -Path $stage -Force | Out-Null
+          $dll = "src/BimTools.SpxExporter.Revit${{ matrix.revit_year }}/bin/Release/BimTools.SpxExporter.Revit${{ matrix.revit_year }}.dll"
+          $pdb = "src/BimTools.SpxExporter.Revit${{ matrix.revit_year }}/bin/Release/BimTools.SpxExporter.Revit${{ matrix.revit_year }}.pdb"
+          Copy-Item $dll -Destination $stage
+          if (Test-Path $pdb) { Copy-Item $pdb -Destination $stage }
+          Copy-Item "src/BimTools.SpxExporter.Revit${{ matrix.revit_year }}/BimTools.SpxExporter.Revit${{ matrix.revit_year }}.addin" -Destination $stage
+          Copy-Item "build/CopyToRevitAddins.ps1" -Destination $stage
+          Copy-Item "README.md" -Destination $stage
+          Copy-Item "LICENSE" -Destination $stage
+
+      - name: Zip release folder
+        shell: pwsh
+        run: |
+          $zip = "release/BimTools.SpxExporter.Revit${{ matrix.revit_year }}.zip"
+          New-Item -ItemType Directory -Path release -Force | Out-Null
+          Compress-Archive -Path "stage/BimTools.SpxExporter.Revit${{ matrix.revit_year }}/*" -DestinationPath $zip -Force
+
+      - name: Upload build artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: BimTools.SpxExporter.Revit${{ matrix.revit_year }}
+          path: release/BimTools.SpxExporter.Revit${{ matrix.revit_year }}.zip
+          retention-days: 30
+
+  release:
+    name: Publish GitHub Release
+    needs: build
+    if: startsWith(github.ref, 'refs/tags/v')
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Download all build artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: release-artifacts
+          merge-multiple: true
+
+      - name: Publish to GitHub Releases
+        uses: softprops/action-gh-release@v2
+        with:
+          generate_release_notes: true
+          files: release-artifacts/*.zip
+          body: |
+            ## BIM TOOLS SPX Exporter ${{ github.ref_name }}
+
+            Built artifacts for the following Revit versions are attached:
+
+            - `BimTools.SpxExporter.Revit2022.zip` (Autodesk Revit 2022, .NET Framework 4.8)
+            - `BimTools.SpxExporter.Revit2023.zip` (Autodesk Revit 2023, .NET Framework 4.8)
+            - `BimTools.SpxExporter.Revit2024.zip` (Autodesk Revit 2024, .NET Framework 4.8 - original target)
+            - `BimTools.SpxExporter.Revit2025.zip` (Autodesk Revit 2025, .NET 8.0)
+            - `BimTools.SpxExporter.Revit2026.zip` (Autodesk Revit 2026, .NET 8.0)
+            - `BimTools.SpxExporter.Revit2027.zip` (Autodesk Revit 2027, .NET 8.0)
+
+            Each zip contains:
+            - `BimTools.SpxExporter.RevitYYYY.dll` - the compiled add-in
+            - `BimTools.SpxExporter.RevitYYYY.addin` - the Revit manifest
+            - `CopyToRevitAddins.ps1` - one-shot installer for the local machine
+            - `README.md`, `LICENSE`
+
+            To install: unzip into `%APPDATA%\Autodesk\Revit\Addins\YYYY\BimTools.SpxExporter\`
+            (where `YYYY` matches the Revit year), then run `CopyToRevitAddins.ps1`.

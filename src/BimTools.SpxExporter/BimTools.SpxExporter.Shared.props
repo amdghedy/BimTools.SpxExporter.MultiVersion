@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+
+  <!--
+    BimTools.SpxExporter shared source project fragment.
+
+    Each per-year .csproj (BimTools.SpxExporter.Revit2022 / 2023 / 2024 / 2025 / 2026 / 2027)
+    <Import>s this file so that ALL C# and XAML source is declared in exactly one place.
+
+    Per-year projects set the following MSBuild properties before importing:
+        RevitYear           e.g. 2025
+        RevitPlatform       net48 | net8.0-windows
+        TargetFramework     inherited from per-year project
+        DefineConstants     per-year #if directive constant (REVIT_YEAR_YYYY)
+  -->
+
+  <PropertyGroup>
+    <RootNamespace>BimTools.SpxExporter</RootNamespace>
+    <AssemblyName>BimTools.SpxExporter.Revit$(RevitYear)</AssemblyName>
+    <LangVersion>10.0</LangVersion>
+    <Nullable>disable</Nullable>
+    <TreatWarningsAsErrors>false</TreatWarningsAsErrors>
+    <GenerateAssemblyInfo>true</GenerateAssemblyInfo>
+    <Deterministic>true</Deterministic>
+    <UseWPF>true</UseWPF>
+    <UseWindowsForms>true</UseWindowsForms>
+    <Platforms>x64</Platforms>
+    <PlatformTarget>x64</PlatformTarget>
+    <DebugType>embedded</DebugType>
+    <Version>1.3.3</Version>
+    <Company>BIM TOOLS</Company>
+    <Product>BIM TOOLS SPX Exporter for Revit $(RevitYear)</Product>
+    <Copyright>Copyright (c) BIM TOOLS</Copyright>
+    <BaseIntermediateOutputPath>obj\</BaseIntermediateOutputPath>
+    <OutputPath>bin\$(Configuration)\</OutputPath>
+    <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
+  </PropertyGroup>
+
+  <!-- Shared sources (all 8 folders). Per-year projects add their own Revit API references. -->
+  <ItemGroup>
+    <Compile Include="$(MSBuildThisFileDirectory)Commands\**\*.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Engines\**\*.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Infrastructure\**\*.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Models\**\*.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Services\**\*.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Startup\**\*.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)ViewModels\**\*.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Views\**\*.xaml.cs" />
+  </ItemGroup>
+
+  <!-- WPF XAML pages need to be declared as Page items so BAML gets compiled. -->
+  <ItemGroup>
+    <Page Include="$(MSBuildThisFileDirectory)Views\**\*.xaml" />
+  </ItemGroup>
+
+  <!-- .NET Framework 4.8 (Revit 2022/2023/2024) needs the framework references. -->
+  <ItemGroup Condition="'$(TargetFramework)' == 'net48'">
+    <Reference Include="System.Windows.Forms" />
+    <Reference Include="System.Runtime.Serialization" />
+    <Reference Include="System.IO.Compression" />
+    <Reference Include="System.IO.Compression.FileSystem" />
+  </ItemGroup>
+
+  <!-- .NET 8 (Revit 2025/2026/2027) gets these via UseWindowsForms=true / UseWPF=true above. -->
+  <ItemGroup Condition="'$(TargetFramework)' == 'net8.0-windows'">
+    <Reference Include="System.IO.Compression" />
+  </ItemGroup>
+
+</Project>
