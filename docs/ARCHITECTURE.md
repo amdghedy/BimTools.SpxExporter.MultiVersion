@@ -19,14 +19,25 @@ vice versa.
 | 2024 | .NET Framework 4.8 | `net48` | `2024.*` |
 | 2025 | .NET 8.0 Windows | `net8.0-windows` | `2025.*` |
 | 2026 | .NET 8.0 Windows | `net8.0-windows` | `2026.*` |
-| 2027 | .NET 8.0 Windows | `net8.0-windows` | `2027.*` |
+| 2027 | .NET 10.0 Windows | `net10.0-windows` | `2027.*` |
 
-A single `<TargetFrameworks>net48;net8.0-windows</TargetFrameworks>` project
-**would** compile to both runtimes, but the Revit API assembly loaded at
+> **Important:** Revit 2027 shipped on .NET 10 (SDK `10.0.100`).
+> The Revit 2025.5 and 2026.5 point releases also moved to .NET 10.
+> This repo's 2025 and 2026 builds target .NET 8 (for the original 2025.0 / 2026.0 releases);
+> if you're on 2025.5 or 2026.5, use the Revit 2027 build with per-user install.
+
+A single `<TargetFrameworks>net48;net8.0-windows;net10.0-windows</TargetFrameworks>` project
+**would** compile to all three runtimes, but the Revit API assembly loaded at
 runtime changes per year - so we'd still need six different binding redirects,
 six `.addin` manifests with distinct `AddInId` GUIDs, and six output directories.
 A multi-targeted single project saves no real complexity and makes the CI
 matrix harder to read.
+
+> **Revit 2027 deployment note:** Revit 2027 also moved the machine-wide addins folder
+> from `%ProgramData%\Autodesk\Revit\Addins\2027\` to
+> `%ProgramFiles%\Autodesk\Revit\Addins\2027\` for improved security.
+> The per-year csproj's `DeployToRevit` target and the `CopyToRevitAddins.ps1 -Machine`
+> installer both handle this automatically.
 
 ## Why six separate projects
 

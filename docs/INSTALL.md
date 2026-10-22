@@ -10,9 +10,15 @@ For the multi-version architecture, see [ARCHITECTURE.md](ARCHITECTURE.md).
 
 - A supported Autodesk Revit installation: **2022, 2023, 2024, 2025, 2026, or 2027**.
 - For Revit 2022 / 2023 / 2024: nothing else required (uses .NET Framework 4.8 built into Windows).
-- For Revit 2025 / 2026 / 2027: the .NET 8 Desktop Runtime (Revit installers usually include it).
+- For Revit 2025 / 2026: the .NET 8 Desktop Runtime (Revit installers usually include it).
+- For Revit 2027: the .NET 10 Desktop Runtime (Revit installers usually include it).
 - Local Administrator privileges are **not** required for per-user install (default mode).
 - PowerShell 5.1 or later (built into Windows 10/11).
+
+> **Revit 2027 path change:** Autodesk moved the machine-wide addins folder
+> from `%PROGRAMDATA%\Autodesk\Revit\Addins\2027\` to
+> `%PROGRAMFILES%\Autodesk\Revit\Addins\2027\` for security. The `CopyToRevitAddins.ps1 -Machine`
+> installer handles this automatically; manual installers need to know.
 
 ## Step 1 - Download the right release
 

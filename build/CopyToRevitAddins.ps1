@@ -73,8 +73,15 @@ if (-not $Year) {
     $Year = Get-AddinYearFromManifest
 }
 
+# Revit 2027+ moved machine-wide addins from %ProgramData% to %ProgramFiles%.
+# Per-user addins (%APPDATA%) still work in all versions, but the -Machine
+# switch needs to know about the new location for Revit 2027+.
 $baseFolder = if ($Machine) {
-    $env:ProgramData
+    if ($Year -ge 2027) {
+        $env:ProgramFiles
+    } else {
+        $env:ProgramData
+    }
 } else {
     [Environment]::GetFolderPath('ApplicationData')
 }

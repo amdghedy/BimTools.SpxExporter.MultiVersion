@@ -27,7 +27,16 @@ This repository produces **six** independently-built add-in binaries, one for ea
 | `BimTools.SpxExporter.Revit2024` | 2024 | `net48` | `2024.*` | `6f3a1c52-...` (original, preserved) |
 | `BimTools.SpxExporter.Revit2025` | 2025 | `net8.0-windows` | `2025.*` | `af3a1c52-...` |
 | `BimTools.SpxExporter.Revit2026` | 2026 | `net8.0-windows` | `2026.*` | `bf3a1c52-...` |
-| `BimTools.SpxExporter.Revit2027` | 2027 | `net8.0-windows` | `2027.*` | `cf3a1c52-...` |
+| `BimTools.SpxExporter.Revit2027` | 2027 | `net10.0-windows` | `2027.*` | `cf3a1c52-...` |
+
+> **Revit 2027 requires .NET 10.** Autodesk shipped Revit 2027 on the .NET 10 runtime (SDK `10.0.100`).
+> The Revit 2025.5 and 2026.5 updates also moved to .NET 10 — if you're on those point releases,
+> use the Revit 2027 build with a per-user install (`CopyToRevitAddins.ps1`, no `-Machine` flag).
+>
+> **Revit 2027 also moved the machine-wide addins folder** from
+> `%PROGRAMDATA%\Autodesk\Revit\Addins\2027\` to
+> `%PROGRAMFILES%\Autodesk\Revit\Addins\2027\`. The `CopyToRevitAddins.ps1 -Machine`
+> installer handles this automatically; manual installers need to know.
 
 Each binary has its own stable `<AddInId>` GUID so multiple Revit versions on the same machine
 won't clash.
@@ -91,7 +100,7 @@ msbuild src/BimTools.SpxExporter.Revit2022/BimTools.SpxExporter.Revit2022.csproj
 msbuild src/BimTools.SpxExporter.Revit2023/BimTools.SpxExporter.Revit2023.csproj /p:Configuration=Release /p:Platform=x64
 msbuild src/BimTools.SpxExporter.Revit2024/BimTools.SpxExporter.Revit2024.csproj /p:Configuration=Release /p:Platform=x64
 
-# Revit 2025 / 2026 / 2027 (.NET 8)
+# Revit 2025 / 2026 / 2027 (.NET 8 / 10)
 dotnet build src/BimTools.SpxExporter.Revit2025/BimTools.SpxExporter.Revit2025.csproj -c Release
 dotnet build src/BimTools.SpxExporter.Revit2026/BimTools.SpxExporter.Revit2026.csproj -c Release
 dotnet build src/BimTools.SpxExporter.Revit2027/BimTools.SpxExporter.Revit2027.csproj -c Release

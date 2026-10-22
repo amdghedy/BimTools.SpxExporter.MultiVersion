@@ -11,7 +11,12 @@ Revit version matrix:
     2024 -> net48,           Nice3point.Revit.Api 2024.*  (original target)
     2025 -> net8.0-windows,  Nice3point.Revit.Api 2025.*
     2026 -> net8.0-windows,  Nice3point.Revit.Api 2026.*
-    2027 -> net8.0-windows,  Nice3point.Revit.Api 2027.*
+    2027 -> net10.0-windows, Nice3point.Revit.Api 2027.*  (Revit 2027 requires .NET 10)
+
+Note: Revit 2027 also moved the machine-wide addins folder from
+%ProgramData%\\Autodesk\\Revit\\Addins\\2027 to
+%ProgramFiles%\\Autodesk\\Revit\\Addins\\2027. The generated csproj reflects
+this so the post-build DeployToRevit target writes to the right place.
 
 Each generated .csproj imports ../BimTools.SpxExporter/BimTools.SpxExporter.Shared.props
 so all source files live in exactly one place.
@@ -22,13 +27,16 @@ from textwrap import dedent
 BASE = Path("/home/z/my-project/download/BimTools.SpxExporter")
 
 # (year, target_framework, nice3point_version, original_addin_id_guid)
+# Note: Revit 2027 requires .NET 10. Revit 2025 and 2026 still target .NET 8 by default
+# (Revit 2025.5 and 2026.5 also moved to .NET 10, but the original releases of 2025/2026
+# used .NET 8 - keeping net8 here covers the majority of installs).
 VERSIONS = [
-    (2022, "net48",          "2022.*", "8f3a1c52-8d47-4b0e-9a65-2c7e1d4f8b32"),
-    (2023, "net48",          "2023.*", "9f3a1c52-8d47-4b0e-9a65-2c7e1d4f8b33"),
-    (2024, "net48",          "2024.*", "6f3a1c52-8d47-4b0e-9a65-2c7e1d4f8b31"),  # original GUID preserved
-    (2025, "net8.0-windows", "2025.*", "af3a1c52-8d47-4b0e-9a65-2c7e1d4f8b35"),
-    (2026, "net8.0-windows", "2026.*", "bf3a1c52-8d47-4b0e-9a65-2c7e1d4f8b36"),
-    (2027, "net8.0-windows", "2027.*", "cf3a1c52-8d47-4b0e-9a65-2c7e1d4f8b37"),
+    (2022, "net48",            "2022.*", "8f3a1c52-8d47-4b0e-9a65-2c7e1d4f8b32"),
+    (2023, "net48",            "2023.*", "9f3a1c52-8d47-4b0e-9a65-2c7e1d4f8b33"),
+    (2024, "net48",            "2024.*", "6f3a1c52-8d47-4b0e-9a65-2c7e1d4f8b31"),  # original GUID preserved
+    (2025, "net8.0-windows",   "2025.*", "af3a1c52-8d47-4b0e-9a65-2c7e1d4f8b35"),
+    (2026, "net8.0-windows",   "2026.*", "bf3a1c52-8d47-4b0e-9a65-2c7e1d4f8b36"),
+    (2027, "net10.0-windows",  "2027.*", "cf3a1c52-8d47-4b0e-9a65-2c7e1d4f8b37"),  # Revit 2027 = .NET 10
 ]
 
 CSPROJ_TEMPLATE = dedent("""\
@@ -75,7 +83,11 @@ CSPROJ_TEMPLATE = dedent("""\
 
         <!-- Optional auto-deploy: tweak RevitInstallDir at the command line if Revit is not in the default location. -->
         <RevitInstallDir Condition="'$(RevitInstallDir)' == ''">C:\\Program Files\\Autodesk\\Revit {year}\\</RevitInstallDir>
-        <RevitAddinsDir Condition="'$(RevitAddinsDir)' == ''">$(ProgramData)\\Autodesk\\Revit\\Addins\\{year}\\</RevitAddinsDir>
+        <!--
+          Revit 2027+ moved the machine-wide addins folder from %ProgramData% to %ProgramFiles%.
+          Older Revit versions still expect %ProgramData%\\Autodesk\\Revit\\Addins\\YYYY\\.
+        -->
+        <RevitAddinsDir Condition="'$(RevitAddinsDir)' == ''">{revit_addins_dir}</RevitAddinsDir>
       </PropertyGroup>
 
       <!-- Shared sources - declared exactly once, in BimTools.SpxExporter.Shared.props -->
@@ -154,11 +166,18 @@ def main() -> None:
 
         # .csproj
         csproj_path = proj_dir / f"BimTools.SpxExporter.Revit{year}.csproj"
+        # Revit 2027+ moved machine-wide addins to ProgramFiles. Earlier versions still use ProgramData.
+        revit_addins_dir = (
+            f"$(ProgramFiles)\\Autodesk\\Revit\\Addins\\{year}\\"
+            if year >= 2027
+            else f"$(ProgramData)\\Autodesk\\Revit\\Addins\\{year}\\"
+        )
         csproj_path.write_text(CSPROJ_TEMPLATE.format(
             year=year,
             framework=framework,
             nice3point_version=nice3point_version,
             addin_guid=addin_guid,
+            revit_addins_dir=revit_addins_dir,
         ), encoding="utf-8")
 
         # .addin manifest

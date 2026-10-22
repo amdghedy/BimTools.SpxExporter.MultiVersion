@@ -37,7 +37,7 @@ jobs:
             framework:  net8.0-windows
             nice3point: 2026.*
           - revit_year: 2027
-            framework:  net8.0-windows
+            framework:  net10.0-windows
             nice3point: 2027.*
 
     steps:
@@ -52,6 +52,7 @@ jobs:
           dotnet-version: |
             6.0.x
             8.0.x
+            10.0.x
 
       - name: Add MSBuild to PATH (for net48)
         uses: microsoft/setup-msbuild@v2
@@ -119,7 +120,7 @@ jobs:
             - `BimTools.SpxExporter.Revit2024.zip` (Autodesk Revit 2024, .NET Framework 4.8 - original target)
             - `BimTools.SpxExporter.Revit2025.zip` (Autodesk Revit 2025, .NET 8.0)
             - `BimTools.SpxExporter.Revit2026.zip` (Autodesk Revit 2026, .NET 8.0)
-            - `BimTools.SpxExporter.Revit2027.zip` (Autodesk Revit 2027, .NET 8.0)
+            - `BimTools.SpxExporter.Revit2027.zip` (Autodesk Revit 2027, .NET 10)
 
             Each zip contains:
             - `BimTools.SpxExporter.RevitYYYY.dll` - the compiled add-in

@@ -4,14 +4,14 @@
   /scripts/generate_per_version_files.py.
 
   Target: Autodesk Revit 2027
-  .NET target framework: net8.0-windows
+  .NET target framework: net10.0-windows
   Nice3point.Revit.Api version: 2027.*
   Add-in ID (stable per year): cf3a1c52-8d47-4b0e-9a65-2c7e1d4f8b37
 -->
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>net8.0-windows</TargetFramework>
+    <TargetFramework>net10.0-windows</TargetFramework>
     <RootNamespace>BimTools.SpxExporter</RootNamespace>
     <AssemblyName>BimTools.SpxExporter.Revit2027</AssemblyName>
     <LangVersion>10.0</LangVersion>
@@ -29,7 +29,7 @@
 
     <!-- Per-year identity injected into AppPaths.cs -->
     <RevitYear>2027</RevitYear>
-    <RevitPlatform>net8.0-windows</RevitPlatform>
+    <RevitPlatform>net10.0-windows</RevitPlatform>
     <DefineConstants>$(DefineConstants);REVIT_YEAR_2027</DefineConstants>
 
     <OutputPath>bin\$(Configuration)\</OutputPath>
@@ -41,7 +41,11 @@
 
     <!-- Optional auto-deploy: tweak RevitInstallDir at the command line if Revit is not in the default location. -->
     <RevitInstallDir Condition="'$(RevitInstallDir)' == ''">C:\Program Files\Autodesk\Revit 2027\</RevitInstallDir>
-    <RevitAddinsDir Condition="'$(RevitAddinsDir)' == ''">$(ProgramData)\Autodesk\Revit\Addins\2027\</RevitAddinsDir>
+    <!--
+      Revit 2027+ moved the machine-wide addins folder from %ProgramData% to %ProgramFiles%.
+      Older Revit versions still expect %ProgramData%\Autodesk\Revit\Addins\YYYY\.
+    -->
+    <RevitAddinsDir Condition="'$(RevitAddinsDir)' == ''">$(ProgramFiles)\Autodesk\Revit\Addins\2027\</RevitAddinsDir>
   </PropertyGroup>
 
   <!-- Shared sources - declared exactly once, in BimTools.SpxExporter.Shared.props -->
