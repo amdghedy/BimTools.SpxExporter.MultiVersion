@@ -1,5 +1,17 @@
 # BIM TOOLS - SPX Batch Exporter (Revit 2022 - 2026) v1.3
 
+## Screenshots
+
+### Element Category Selector — Full View
+> New in v1.6 · **Element data** tab · Choose which shuttering / formwork element category to model
+
+![BIM TOOLS SPX Exporter – Element Category UI](docs/images/ui-element-category-main.jpg)
+
+### Element Category Selector — Compact View
+![BIM TOOLS SPX Exporter – Compact UI](docs/images/ui-element-category-compact.jpg)
+
+---
+
 A Revit 2022 - 2026 add-in (C#, .NET Framework 4.8, WPF, MVVM). It adds a **BIM TOOLS** ribbon tab with an **SPX Export** panel
 and exports whole folder trees of Revit models to SYNCHRO 4D **.spx**, unattended, **beside each original .rvt file**.
 No Navisworks is used or required.
@@ -81,3 +93,18 @@ Tab **View preparation** now controls how the 3D view looks when SYNCHRO exports
 * Hide annotation, imported (DWG/DGN/image) and analytical categories, plus rooms, grids/levels, links, view markers, named categories and worksets.
 
 Fixed: the Detail level and View projection drop-downs were empty in the previous build.
+
+## Element category selector (v1.6)
+
+New **"Element category to model"** section in the **Element data** tab lets the user select exactly which formwork / shuttering category to export, without typing raw Revit category names:
+
+| Option | Revit categories matched |
+|---|---|
+| All elements | *(no filter — every model element)* |
+| Plywood touching concrete | `Generic Models`, `*Plywood*`, `*Formwork*`, `*Form*` |
+| Joists | `*Joist*`, `Structural Framing` |
+| Joints | `*Joint*`, `*Connection*` |
+| Primary structure | `Structural Columns`, `Structural Walls`, `Walls`, `Columns` |
+| Horizontal members | `Floors`, `Structural Floors`, `Roofs`, `*Slab*`, `*Deck*` |
+
+The free-text "Only these categories" field still takes priority when filled in. Patterns can be customised in `Services/ElementDataExporter.cs → ResolveCategoryFilter()`.
