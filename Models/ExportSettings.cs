@@ -40,6 +40,17 @@ namespace BimTools.SpxExporter.Models
         private bool _openOutputFolderWhenDone;
         private bool _showSummaryDialog;
         private bool _alsoExportElementData;
+        private ElementCategory _selectedCategory;
+
+        /// <summary>
+        /// Category of elements to export. Allows filtering plywood touching concrete, joists, etc.
+        /// </summary>
+        [DataMember]
+        public ElementCategory SelectedCategory
+        {
+            get => _selectedCategory;
+            set => SetProperty(ref _selectedCategory, value);
+        }
         private string _dataParameterNames;
         private string _dataCategoryFilter;
         private bool _dataIncludeTypeParameters;
@@ -125,6 +136,7 @@ namespace BimTools.SpxExporter.Models
             _openOutputFolderWhenDone = true;
             _showSummaryDialog = true;
             _alsoExportElementData = false;
+            _selectedCategory = ElementCategory.All;
             _dataParameterNames = "Mark;Comments";
             _dataCategoryFilter = "";
             _dataIncludeTypeParameters = true;

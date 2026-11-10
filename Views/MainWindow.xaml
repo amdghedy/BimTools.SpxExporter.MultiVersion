@@ -338,6 +338,15 @@
                         <TextBox Text="{Binding Settings.DataParameterNames, UpdateSourceTrigger=PropertyChanged}" />
                         <CheckBox Content="Fall back to type parameters when the instance has no value" IsChecked="{Binding Settings.DataIncludeTypeParameters}" />
 
+                        <!-- Element category selector -->
+                        <TextBlock Style="{StaticResource SectionTitle}" Text="Element category to model" />
+                        <TextBlock Style="{StaticResource Hint}"
+                                   Text="Choose which shuttering / formwork category to include. 'Plywood touching concrete' selects only the face panels that contact concrete; the other options target structural sub-groups." />
+                        <TextBlock Style="{StaticResource FieldLabel}" Text="Category" />
+                        <ComboBox ItemsSource="{Binding CategoryChoices}"
+                                  SelectedValuePath="Value" DisplayMemberPath="Text"
+                                  SelectedValue="{Binding Settings.SelectedCategory}" />
+
                         <TextBlock Style="{StaticResource FieldLabel}" Text="Only these categories (blank = all model categories; wildcards allowed)" />
                         <TextBox Text="{Binding Settings.DataCategoryFilter, UpdateSourceTrigger=PropertyChanged}" />
 

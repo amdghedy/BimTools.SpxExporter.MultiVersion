@@ -9,10 +9,41 @@ namespace BimTools.SpxExporter.Services
 {
     public sealed class ElementDataExporter
     {
+        /// <summary>
+        /// Maps a high-level ElementCategory enum value to the Revit category name pattern
+        /// used by the existing DataCategoryFilter wildcard matching.
+        /// </summary>
+        private static string ResolveCategoryFilter(ExportSettings settings)
+        {
+            // If the user typed an explicit filter, it always wins.
+            if (!string.IsNullOrWhiteSpace(settings.DataCategoryFilter))
+                return settings.DataCategoryFilter;
+
+            switch (settings.SelectedCategory)
+            {
+                case ElementCategory.PlywoodTouchingConcrete:
+                    // Revit families for formwork plywood are typically under Generic Models or Structural Framing.
+                    // Adjust these pattern(s) to match your project's actual Revit category names.
+                    return "Generic Models;*Plywood*;*Formwork*;*Form*";
+                case ElementCategory.Joists:
+                    return "*Joist*;Structural Framing";
+                case ElementCategory.Joints:
+                    return "*Joint*;*Connection*";
+                case ElementCategory.Primary:
+                    return "Structural Columns;Structural Walls;Walls;Columns";
+                case ElementCategory.Horizontal:
+                    return "Floors;Structural Floors;Roofs;*Slab*;*Deck*";
+                default: // ElementCategory.All
+                    return string.Empty;
+            }
+        }
+
         public int Write(Document doc, ExportSettings settings, string path)
         {
             string[] parameterNames = PatternMatcher.Split(settings.DataParameterNames);
-            string[] categoryFilter = PatternMatcher.Split(settings.DataCategoryFilter);
+            // Merge enum-based category with any free-text filter the user typed
+            string resolvedFilter = ResolveCategoryFilter(settings);
+            string[] categoryFilter = PatternMatcher.Split(resolvedFilter);
             Dictionary<string, string> elementNames = new Dictionary<string, string>();
             Dictionary<string, string[]> typeNames = new Dictionary<string, string[]>();
             Dictionary<int, string> worksetNames = new Dictionary<int, string>();

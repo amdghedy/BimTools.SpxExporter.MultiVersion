@@ -137,6 +137,17 @@ namespace BimTools.SpxExporter.ViewModels
                 new ChoiceItem<PartsVisibilityOption>(PartsVisibilityOption.ShowBoth, "Show parts and original")
             };
 
+            // Formwork / shuttering element categories
+            CategoryChoices = new[]
+            {
+                new ChoiceItem<ElementCategory>(ElementCategory.All,                   "All elements"),
+                new ChoiceItem<ElementCategory>(ElementCategory.PlywoodTouchingConcrete, "Plywood touching concrete (formwork face)"),
+                new ChoiceItem<ElementCategory>(ElementCategory.Joists,                "Joists"),
+                new ChoiceItem<ElementCategory>(ElementCategory.Joints,                "Joints"),
+                new ChoiceItem<ElementCategory>(ElementCategory.Primary,               "Primary structure"),
+                new ChoiceItem<ElementCategory>(ElementCategory.Horizontal,            "Horizontal members")
+            };
+
             AddFilesCommand = new RelayCommand(delegate { AddFiles(); });
             AddFolderCommand = new RelayCommand(delegate { AddFolder(); });
             AddActiveCommand = new RelayCommand(delegate { AddActiveModel(); });
@@ -202,6 +213,8 @@ namespace BimTools.SpxExporter.ViewModels
         public IList<ChoiceItem<DisciplineOption>> DisciplineChoices { get; }
 
         public IList<ChoiceItem<PartsVisibilityOption>> PartsChoices { get; }
+
+        public IList<ChoiceItem<ElementCategory>> CategoryChoices { get; }
 
         public ICommand AutoFolderCommand { get; }
 
