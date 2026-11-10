@@ -1,0 +1,14 @@
+## Revit add-in standard ignores
+*.user
+*.suo
+.vs/
+
+# Build intermediates
+obj/
+
+# Revit API stub DLLs (copied locally for build; not committed)
+RevitAPI/
+
+# OS
+Thumbs.db
+.DS_Store

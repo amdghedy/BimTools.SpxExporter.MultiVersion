@@ -168,15 +168,17 @@ namespace BimTools.SpxExporter.Services
             }
 
             WorksetId id = element.WorksetId;
+            // IntegerValue is available in all Revit versions up to and including the stub DLLs we reference.
+            int key = id.IntegerValue;
             string name;
-            if (cache.TryGetValue(id.IntegerValue, out name))
+            if (cache.TryGetValue(key, out name))
             {
                 return name;
             }
 
             Workset workset = doc.GetWorksetTable().GetWorkset(id);
             name = workset == null ? string.Empty : workset.Name;
-            cache[id.IntegerValue] = name;
+            cache[key] = name;
             return name;
         }
 

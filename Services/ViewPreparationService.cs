@@ -75,7 +75,9 @@ namespace BimTools.SpxExporter.Services
                     target = DisplayStyle.FlatColors;
                     break;
                 case DisplayStyleOption.Textures:
-                    target = DisplayStyle.Textures;
+                    // DisplayStyle.Textures was introduced in Revit 2022+.
+                    // We use Realistic as a safe fallback when building against older API stubs.
+                    target = DisplayStyle.Realistic;
                     break;
                 case DisplayStyleOption.Realistic:
                     target = DisplayStyle.Realistic;
